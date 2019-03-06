@@ -1,6 +1,5 @@
 from collections import namedtuple
 from collections import Counter
-from random import shuffle
 from enum import Enum
 
 class Card(namedtuple('Card', 'face, suit')):
@@ -14,10 +13,6 @@ lowaces = 'a 2 3 4 5 6 7 8 9 10 j q k'
 # faces as lists
 face   = faces.split()
 lowace = lowaces.split()
-
-#Configuration
-starting_hand = [Card('2', '♥︎'), Card('2', '♦︎')]
-opponents_num = 1
 
 class HandType(Enum):
     STRAIGHT_FLUSH = 1
@@ -47,6 +42,9 @@ def straight_flush(hand):
         for trimed_faces in [straight_faces[i:i+5] for i in range(0, len(straight_faces) - 4)]:
             if ' '.join(trimed_faces) in fs:
                 tie_breaker = [trimed_faces[-1]]
+
+    if not tie_breaker:
+        return False
 
     return HandType.STRAIGHT_FLUSH, tie_breaker
 
@@ -199,36 +197,3 @@ def handy(hands, public_cards):
     for hand in hands:
         construct_hands.append(hand + public_cards)
     return construct_hands
-
-def construct_deck():
-    deck = []
-    for f in face:
-        for s in suit:
-            deck.append(Card(f, s))
-    
-    # Shuffle the deck for 10 times
-    for i in range(10):
-        shuffle(deck)
-    
-    return deck
-
-def deal_card(deck, num):
-    dealt_card = []
-    for i in range(num):
-        dealt_card.append(deck.pop())
-    
-    return dealt_card
-
-if __name__ == '__main__':
-    deck = construct_deck()
-    deck.remove(starting_hand[0])
-    deck.remove(starting_hand[1])
-    hands = []
-    hands.append(starting_hand)
-    
-    for i in range(opponents_num):
-        dealt_card = deal_card(deck, 2)
-        hands.append(dealt_card)
-    
-    public_cards = deal_card(deck, 5)
-    rank(hands, public_cards)
