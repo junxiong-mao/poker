@@ -115,7 +115,7 @@ def three_of_a_kind(hand):
     return HandType.THREE_OF_A_KIND, tie_breaker
 
 def two_pair(hand):
-    all_faces = [card.faces for card in hand]
+    all_faces = [card.face for card in hand]
     pairs = [f for f in set(all_faces) if all_faces.count(f) == 2]
     if len(pairs) < 2:
         return False
@@ -126,7 +126,7 @@ def two_pair(hand):
     return HandType.TWO_PAIR, tie_breaker
 
 def one_pair(hand):
-    all_faces = [card.faces for card in hand]
+    all_faces = [card.face for card in hand]
     pairs = [f for f in set(all_faces) if all_faces.count(f) == 2]
     if len(pairs) < 1:
         return False
@@ -138,7 +138,7 @@ def one_pair(hand):
     return HandType.ONE_PAIR, tie_breaker
 
 def high_card(hand):
-    all_faces = [card.faces for card in hand]
+    all_faces = [card.face for card in hand]
     all_faces = sorted(all_faces, key=lambda f: face.index(f), reverse=True)
     tie_breaker = all_faces[0:5]
     return HandType.HIGH_CARD, tie_breaker
@@ -149,7 +149,7 @@ handrankorder =  (straight_flush, four_of_a_kind, full_house,
 
 def sort_hands(candidate_hands, tie_breakers):
     if (len(candidate_hands) == 0 or len(tie_breakers) == 0):
-        return
+        return []
 
     sorted_hands = []
     sorted_tie_breakers = tie_breakers
@@ -162,14 +162,22 @@ def sort_hands(candidate_hands, tie_breakers):
     return sorted_hands
 
 def rank(hands, public_cards):
-    ordered_hands = []
+    """
+    REQUIRS: hands is a list of 'hand', which is a list of 2 cards
+             public_cards is a list of 5 cards
+
+    RETURNS: ordered hands, which is a list of list of two cards.
+             the order is determined from largest to smallest
+    """
+    full_hands = []
     construct_hands = handy(hands, public_cards)
     for ranker in handrankorder:
         candidate_hands = []
         tie_breakers = []
         for hand in construct_hands:
-            tie_breaker = ranker(hand)
-            if tie_breaker:
+            result = ranker(hand)
+            if result != False:
+                hand_type, tie_breaker = result
                 candidate_hands.append(hand)
                 tie_breakers.append(tie_breaker)
         
@@ -177,7 +185,12 @@ def rank(hands, public_cards):
             construct_hands.remove(hand)
         
         for hand in sort_hands(candidate_hands, tie_breakers):
-            ordered_hands.append(hand)
+            full_hands.append(hand)
+
+    ordered_hands = []
+    for hand in full_hands:
+        hand = [card for card in hand if card not in public_cards]
+        ordered_hands.append(hand)
 
     return ordered_hands
 
@@ -185,7 +198,6 @@ def handy(hands, public_cards):
     construct_hands = []
     for hand in hands:
         construct_hands.append(hand + public_cards)
-    print(construct_hands)
     return construct_hands
 
 def construct_deck():
@@ -220,8 +232,3 @@ if __name__ == '__main__':
     
     public_cards = deal_card(deck, 5)
     rank(hands, public_cards)
-
-    #hand = [Card('2', '♠︎'), Card('3', '♠︎'), Card('k', '♠︎'), Card('q', '♠︎'), Card('10', '♠︎'), Card('a', '♠︎'), Card('j', '♠︎')]
-    # hand = [Card('a', '♠︎'), Card('a', '♣︎'), Card('3', '♥︎'), Card('j', '♦︎'), Card('10', '♠︎'), Card('j', '♠︎'), Card('j', '♠︎')]
-    # tb = fullhouse(hand)
-    # print(tb)
