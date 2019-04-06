@@ -1,6 +1,14 @@
 import poker
+import sys, getopt
 from poker import Card, face, suit
 from random import shuffle
+
+code_to_suit_map = {
+    'S': '♠︎',
+    'H': '♥︎',
+    'C': '♣︎',
+    'D': '♦︎'
+}
 
 #Configuration
 starting_hand = [Card('k', '♦︎'), Card('k', '♥︎')]
@@ -27,7 +35,63 @@ def deal_card(deck, num):
     
     return dealt_card
 
-if __name__ == '__main__':
+def parse_hand(starting_hand):
+    cards = starting_hand.split()
+    hand = []
+    if len(cards) != 2:
+        return False
+    
+    for card in cards:
+        suit = code_to_suit_map[card[-1]]
+        face = card[0:-1]
+        hand.append(Card(face, suit))
+    
+    return hand
+
+def print_help():
+    print("Usage:")
+    print("python3 simulation -p|--player <player number> -r|--round <simulation round> -s|--starting_hand <starting hand> ")
+    return
+
+def main(argv):
+    player = None
+    starting_hand = None
+    # By default takes 10000 rounds
+    rounds = 10000
+
+    try:
+        opts, args = getopt.getopt(argv, "hp:s:r:", ['help', 'player=', 'starting_hand=', 'rounds'])
+    except getopt.GetoptError:
+        print_help()
+        return
+    
+    for opt, arg in opts:
+        if opt == '-h':
+            print_help()
+            return
+        elif opt in ('-p', '--player'):
+            player = arg
+        elif opt in ('-s', '--starting_hand'):
+            starting_hand = arg
+        elif opt in ('-r', '--rounds'):
+            rounds = arg
+
+    if player == None:
+        print('Please provide player number!')
+        print_help()
+        return
+    
+    if starting_hand == None:
+        print('Please provide starting hand')
+        print_help()
+        return
+
+    try:
+        starting_hand = parse_hand(starting_hand)
+    except:
+        print_help()
+        return
+
     win = 0
     for i in range(simulation_rounds):
         deck = construct_deck()
@@ -46,3 +110,6 @@ if __name__ == '__main__':
             win += 1
     
     print(win / simulation_rounds)
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
