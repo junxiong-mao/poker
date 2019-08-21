@@ -3,13 +3,7 @@ sys.path.append("../")
 import poker
 import unittest
 from poker import Card
-
-code_to_suit_map = {
-    'S': '♠︎',
-    'H': '♥︎',
-    'C': '♣︎',
-    'D': '♦︎'
-}
+from play_utils import code_to_suit_map
 
 ranker_tests = [
     ('2S 3S 4S 5S 6S 7S 8S', (poker.HandType.STRAIGHT_FLUSH, ['8'])),
@@ -23,8 +17,8 @@ ranker_tests = [
 ]
 
 rank_tests = [
-    (['5S 5D', '5C 6H'], '5H 6D 6C aD kH', ['5C 6H', '5S 5D']),
-    (['5S 5D', 'jC 6H'], 'aH 6D 6C aD kH', ['jC 6H', '5S 5D']),
+    (['5S 5D', '5C 6H'], '5H 6D 6C aD kH', [('5C 6H', poker.HandType.FULL_HOUSE), ('5S 5D', poker.HandType.FULL_HOUSE)]),
+    (['5S 5D', 'jC 6H'], 'aH 6D 6C aD kH', [('jC 6H', poker.HandType.FULL_HOUSE), ('5S 5D', poker.HandType.TWO_PAIR)]),
     #TODO: Add more tests
 ]
 
@@ -32,7 +26,7 @@ def format_cards(cards_str):
     hand = []
     hand_list = cards_str.split()
     for card in hand_list:
-        symbol = code_to_suit_map[card[-1]]
+        symbol = card[-1]
         face = card[0:-1]
         hand.append(Card(face, symbol))
     
@@ -57,6 +51,6 @@ class PokerTests(unittest.TestCase):
             for cards_str in sample[0]:
                 hands.append(format_cards(cards_str))
             public_cards = format_cards(sample[1])
-            for result_str in sample[2]:
-                result.append(format_cards(result_str))
+            for semi_result in sample[2]:
+                result.append((format_cards(semi_result[0]), semi_result[1]))
             self.assertEqual(result, poker.rank(hands, public_cards))

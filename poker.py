@@ -6,7 +6,8 @@ class Card(namedtuple('Card', 'face, suit')):
     def __repr__(self):
         return ''.join(self)
 
-suit = '♥︎ ♦︎ ♣︎ ♠︎'.split()
+# suit = '♥︎ ♦︎ ♣︎ ♠︎'.split()
+suit = 'H D C S'.split()
 # ordered strings of faces
 faces   = '2 3 4 5 6 7 8 9 10 j q k a'
 lowaces = 'a 2 3 4 5 6 7 8 9 10 j q k'
@@ -15,15 +16,15 @@ face   = faces.split()
 lowace = lowaces.split()
 
 class HandType(Enum):
-    STRAIGHT_FLUSH = 1
-    FOUR_OF_A_KIND = 2
-    FULL_HOUSE = 3
-    FLUSH = 4
-    STRAIGHT = 5
-    THREE_OF_A_KIND = 6
-    TWO_PAIR = 7
-    ONE_PAIR = 8
-    HIGH_CARD = 9
+    STRAIGHT_FLUSH = 0
+    FOUR_OF_A_KIND = 1
+    FULL_HOUSE = 2
+    FLUSH = 3
+    STRAIGHT = 4
+    THREE_OF_A_KIND = 5
+    TWO_PAIR = 6
+    ONE_PAIR = 7
+    HIGH_CARD = 8
 
 def straight_flush(hand):
     suits = [card.suit for card in hand]
@@ -169,6 +170,7 @@ def rank(hands, public_cards):
     """
     full_hands = []
     construct_hands = handy(hands, public_cards)
+    cnt = 0
     for ranker in handrankorder:
         candidate_hands = []
         tie_breakers = []
@@ -183,12 +185,14 @@ def rank(hands, public_cards):
             construct_hands.remove(hand)
         
         for hand in sort_hands(candidate_hands, tie_breakers):
-            full_hands.append(hand)
+            full_hands.append((hand, HandType(cnt)))
+        
+        cnt += 1
 
     ordered_hands = []
     for hand in full_hands:
-        hand = [card for card in hand if card not in public_cards]
-        ordered_hands.append(hand)
+        hand_card = [card for card in hand[0] if card not in public_cards]
+        ordered_hands.append((hand_card, hand[1]))
 
     return ordered_hands
 
