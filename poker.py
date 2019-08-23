@@ -66,14 +66,17 @@ def full_house(hand):
     all_faces = [card.face for card in hand]
     face_collections = Counter(all_faces)
     face_amount_sorted = sorted(face_collections.keys(), key=lambda face: face_collections[face])
-    face_three = face_amount_sorted[-1]
-    face_two = face_amount_sorted[-2]
-    if face_collections[face_three] != 3:
+    c1 = face_amount_sorted[-1]
+    c2 = face_amount_sorted[-2]
+    if face_collections[c1] < 3:
         return False
-    if face_collections[face_two] != 2:
+    if face_collections[c2] < 2:
         return False
 
-    tie_breaker = [face_three, face_two]
+    if face_collections[c2] == 2:
+        tie_breaker = [c1, c2]
+    elif face_collections[c2] == 3:
+        tie_breaker = sorted([c1, c2], reverse=True)
     return HandType.FULL_HOUSE, tie_breaker
 
 def flush(hand):
@@ -85,7 +88,7 @@ def flush(hand):
     
     flush_hand = [card.face for card in hand if card.suit == flush_suit]
     flush_hand = sorted(flush_hand, key=lambda f: face.index(f), reverse=True)
-    tie_breaker = flush_hand[0:4]
+    tie_breaker = flush_hand[0:5]
     return HandType.FLUSH, tie_breaker
 
 def straight(hand):
